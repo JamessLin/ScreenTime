@@ -2,6 +2,8 @@
 @tailwind components;
 @tailwind utilities;
  
+
+/* TODO: Change the colors */
 @layer base {
   :root {
     --background: 0 0% 100%;
