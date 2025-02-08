@@ -1,30 +1,43 @@
 // Dont remove
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-mod screen_time;
+use tauri::{Manager, State};
+use std::sync::{Arc, Mutex};
+use std::collections::HashMap;
 
-use screen_time::{ScreenTimeState, get_app_times, update_screen_time};
-use std::time::Duration;
-use tauri::Manager;
+mod tracking;
+
+#[derive(serde::Serialize)]
+struct TrackingData {
+    app_name: String,
+    duration: u64,
+}
+
+struct AppState {
+    tracking: Arc<Mutex<HashMap<String, u64>>>,
+}
+
+#[tauri::command]
+fn get_tracking_data(state: State<'_, AppState>) -> Vec<TrackingData> {
+    let state = state.tracking.lock().unwrap();
+    state.iter()
+        .map(|(app_name, duration)| TrackingData {
+            app_name: app_name.clone(),
+            duration: *duration,
+        })
+        .collect()
+}
 
 fn main() {
+    let tracking_data = Arc::new(Mutex::new(HashMap::new()));
+    
     tauri::Builder::default()
-        .manage(ScreenTimeState::new())
-        .invoke_handler(tauri::generate_handler![get_app_times])
+        .manage(AppState {
+            tracking: tracking_data.clone(),
+        })
+        .invoke_handler(tauri::generate_handler![get_tracking_data])
         .setup(|app| {
-            let app_handle = app.handle();
-            let state = app.state::<ScreenTimeState>();
-            
-            std::thread::spawn(move || {
-                loop {
-                    update_screen_time(&state);
-                    std::thread::sleep(Duration::from_secs(1));
-              
-                    let _ = app_handle.emit_all("screen-time-update", 
-                        get_app_times(state.clone()));
-                }
-            });
-            
+            tracking::start_tracking_thread(tracking_data);
             Ok(())
         })
         .run(tauri::generate_context!())

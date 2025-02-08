@@ -1,7 +1,7 @@
-import AppList from './components/applist';
+import {ScreenTimeTracker } from './components/applist';
 
 function App() {
-  return <AppList />;
+  return <ScreenTimeTracker />;
 }
 
 export default App;
