@@ -1,140 +1,148 @@
-import { useState } from 'react';
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Activity, Clock, Calendar, BarChart2, Monitor, ChevronRight, Lock } from "lucide-react";
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  ResponsiveContainer,
-  Tooltip,
-} from 'recharts';
+// src/components/ScreenTimeDashboard.tsx
+import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts'
+import { FaApple, FaChrome, FaCode, FaSpotify, FaRegClock } from 'react-icons/fa'
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 
+const mockData = {
+  daily: [
+    { day: 'Mon', hours: 3.2 },
+    { day: 'Tue', hours: 4.1 },
+    { day: 'Wed', hours: 2.8 },
+    { day: 'Thu', hours: 5.4 },
+    { day: 'Fri', hours: 3.7 },
+    { day: 'Sat', hours: 1.2 },
+    { day: 'Sun', hours: 2.5 },
+  ],
+  apps: [
+    { name: 'VS Code', hours: 18, icon: <FaCode /> },
+    { name: 'Chrome', hours: 22, icon: <FaChrome /> },
+    { name: 'Spotify', hours: 12, icon: <FaSpotify /> },
+    { name: 'System', hours: 8, icon: <FaApple /> },
+  ],
+}
 
-const mockData = [
-  { name: 'Mon', time: 4 },
-  { name: 'Tue', time: 3 },
-  { name: 'Wed', time: 5 },
-  { name: 'Thu', time: 2 },
-  { name: 'Fri', time: 6 },
-  { name: 'Sat', time: 8 },
-  { name: 'Sun', time: 7 },
-];
-
-export default function ScreenTimeDashboard() {
-  const [timeFrame, setTimeFrame] = useState('today');
-
+export function ScreenTimeDashboard() {
   return (
     <div className="min-h-screen bg-background p-8">
-      <div className="max-w-6xl mx-auto space-y-8">
-        <div className="flex items-center justify-between">
-          <h1 className="text-3xl font-bold">Screen Time</h1>
-          <Tabs defaultValue="today" className="w-[400px]">
-            <TabsList className="grid w-full grid-cols-4">
-              <TabsTrigger value="today">Today</TabsTrigger>
-              <TabsTrigger value="week">Week</TabsTrigger>
-              <TabsTrigger value="month">Month</TabsTrigger>
-              <TabsTrigger value="year">Year</TabsTrigger>
-            </TabsList>
-          </Tabs>
+      <div className="grid grid-cols-1 gap-8 md:grid-cols-3 lg:grid-cols-4">
+        {/* Header */}
+        <div className="md:col-span-3 lg:col-span-4">
+          <h1 className="text-3xl font-bold text-foreground">Screen Time</h1>
+          <p className="text-muted-foreground">Weekly Activity Summary</p>
         </div>
 
-
-        <Card className="bg-primary/5">
-          <CardContent className="p-6">
-            <div className="grid grid-cols-3 gap-6">
-              <div className="space-y-2">
-                <p className="text-sm text-muted-foreground">Total Screen Time</p>
-                <h2 className="text-4xl font-bold">5h 42m</h2>
-                <p className="text-sm text-green-600">↑ 12% from yesterday</p>
-              </div>
-              <div className="col-span-2">
-                <ResponsiveContainer width="100%" height={200}>
-                  <BarChart data={mockData}>
-                    <XAxis dataKey="name" />
-                    <YAxis />
-                    <Tooltip />
-                    <Bar dataKey="time" fill="#3b82f6" radius={[4, 4, 0, 0]} />
-                  </BarChart>
-                </ResponsiveContainer>
+        {/* Stats Cards */}
+        <Card className="apple-card">
+          <CardHeader>
+            <CardTitle className="text-lg">Total Screen Time</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center gap-4">
+              <FaRegClock className="h-8 w-8 text-primary" />
+              <div>
+                <p className="text-3xl font-bold">28.9h</p>
+                <p className="text-sm text-muted-foreground">+12% from last week</p>
               </div>
             </div>
           </CardContent>
         </Card>
 
-        <div className="grid grid-cols-2 gap-6">
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-xl flex items-center gap-2">
-                <Monitor className="h-5 w-5" />
-                Most Used Applications
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {['Visual Studio Code', 'Chrome', 'Spotify', 'Slack'].map((app) => (
-                  <div key={app} className="flex items-center justify-between p-3 hover:bg-accent rounded-lg transition-colors">
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 bg-primary/10 rounded-md flex items-center justify-center">
-                        <Activity className="h-4 w-4 text-primary" />
-                      </div>
-                      <span className="font-medium">{app}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-muted-foreground">2h 15m</span>
-                      <ChevronRight className="h-4 w-4 text-muted-foreground" />
-                    </div>
-                  </div>
-                ))}
+        <Card className="apple-card">
+          <CardHeader>
+            <CardTitle className="text-lg">Daily Average</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center gap-4">
+              <div className="rounded-lg bg-secondary p-2">
+                <FaRegClock className="h-6 w-6 text-foreground" />
               </div>
-            </CardContent>
-          </Card>
+              <div>
+                <p className="text-3xl font-bold">4.1h</p>
+                <p className="text-sm text-muted-foreground">-1.2h from last week</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
-          <div className="space-y-6">
+        {/* Main Chart */}
+        <Card className="md:col-span-2 lg:col-span-2 apple-card">
+          <CardHeader>
+            <CardTitle>Daily Usage</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="h-64">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={mockData.daily}>
+                  <XAxis dataKey="day" stroke="hsl(var(--foreground))" />
+                  <YAxis stroke="hsl(var(--foreground))" />
+                  <Tooltip />
+                  <Line
+                    type="monotone"
+                    dataKey="hours"
+                    stroke="hsl(var(--primary))"
+                    strokeWidth={2}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          </CardContent>
+        </Card>
 
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-xl flex items-center gap-2">
-                  <Lock className="h-5 w-5" />
-                  Focus Time
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-center justify-between">
+        {/* App Usage List */}
+        <Card className="md:col-span-2 lg:col-span-2 apple-card">
+          <CardHeader>
+            <CardTitle>App Usage</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-6">
+              {mockData.apps.map((app, index) => (
+                <div key={index} className="flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <span className="text-muted-foreground">{app.icon}</span>
+                    <div>
+                      <p className="font-medium">{app.name}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {app.hours} hours
+                      </p>
+                    </div>
+                  </div>
+                  <div className="h-2 w-24 rounded-full bg-secondary">
+                    <div
+                      className="h-2 rounded-full bg-primary"
+                      style={{ width: `${(app.hours / 24) * 100}%` }}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Recent Activity */}
+        <Card className="md:col-span-2 apple-card">
+          <CardHeader>
+            <CardTitle>Recent Activity</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {[...Array(5)].map((_, i) => (
+                <div key={i} className="flex items-start gap-4">
+                  <div className="relative">
+                    <div className="h-2 w-2 rounded-full bg-primary mt-2" />
+                    {i < 4 && (
+                      <div className="absolute left-0.5 h-8 w-px bg-border mt-2" />
+                    )}
+                  </div>
                   <div>
-                    <p className="text-2xl font-bold">3h 25m</p>
-                    <p className="text-sm text-muted-foreground">Total focus time today</p>
-                  </div>
-                  <div className="w-24 h-24 border-8 border-primary rounded-full flex items-center justify-center">
-                    <span className="text-xl font-bold">68%</span>
+                    <p className="font-medium">Opened VS Code</p>
+                    <p className="text-sm text-muted-foreground">2 hours ago</p>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div className="space-y-1">
-                    <p className="text-sm font-medium">Productivity Score</p>
-                    <p className="text-2xl font-bold">85</p>
-                  </div>
-                  <div className="h-2 w-48 bg-primary/20 rounded-full overflow-hidden">
-                    <div className="h-full w-[85%] bg-primary rounded-full" />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
-  );
+  )
 }

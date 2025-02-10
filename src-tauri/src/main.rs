@@ -28,6 +28,8 @@ fn get_tracking_data(state: State<'_, AppState>) -> Vec<TrackingData> {
         .collect()
 }
 
+
+
 fn main() {
     let tracking_data = Arc::new(Mutex::new(HashMap::new()));
     
