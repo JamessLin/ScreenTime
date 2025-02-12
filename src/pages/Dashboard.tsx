@@ -1,148 +1,132 @@
-// src/components/ScreenTimeDashboard.tsx
-import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts'
-import { FaApple, FaChrome, FaCode, FaSpotify, FaRegClock } from 'react-icons/fa'
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
+import React, { useState, useEffect } from 'react';
+import { invoke } from '@tauri-apps/api/tauri';
+import { BarChart2, Clock, Monitor, Smartphone, Laptop } from 'lucide-react';
 
-const mockData = {
-  daily: [
-    { day: 'Mon', hours: 3.2 },
-    { day: 'Tue', hours: 4.1 },
-    { day: 'Wed', hours: 2.8 },
-    { day: 'Thu', hours: 5.4 },
-    { day: 'Fri', hours: 3.7 },
-    { day: 'Sat', hours: 1.2 },
-    { day: 'Sun', hours: 2.5 },
-  ],
-  apps: [
-    { name: 'VS Code', hours: 18, icon: <FaCode /> },
-    { name: 'Chrome', hours: 22, icon: <FaChrome /> },
-    { name: 'Spotify', hours: 12, icon: <FaSpotify /> },
-    { name: 'System', hours: 8, icon: <FaApple /> },
-  ],
+interface TrackingData {
+  app_name: string;
+  duration: number;
 }
 
-export function ScreenTimeDashboard() {
+const formatTime = (seconds: number): string => {
+  const hours = Math.floor(seconds / 3600);
+  const minutes = Math.floor((seconds % 3600) / 60);
+  
+  if (hours > 0) {
+    return `${hours}h ${minutes}m`;
+  }
+  return `${minutes}m`;
+};
+
+const ScreentimeDashboard: React.FC = () => {
+  const [selectedPeriod, setSelectedPeriod] = useState('today');
+  const [appUsageData, setAppUsageData] = useState<TrackingData[]>([]);
+  const [totalScreenTime, setTotalScreenTime] = useState(0);
+
+  useEffect(() => {
+    const fetchTrackingData = async () => {
+      try {
+        const data: TrackingData[] = await invoke('get_tracking_data');
+        
+      
+        const sortedData = data.sort((a, b) => b.duration - a.duration);
+        
+        const total = sortedData.reduce((sum, app) => sum + app.duration, 0);
+        
+        setAppUsageData(sortedData);
+        setTotalScreenTime(total);
+      } catch (error) {
+        console.error('Failed to fetch tracking data:', error);
+      }
+    };
+
+
+    fetchTrackingData();
+    const interval = setInterval(fetchTrackingData, 60000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  const periodOptions = ['today', 'week', 'month'];
+
+  const getAppIcon = (appName: string) => {
+    const lowercaseName = appName.toLowerCase();
+    if (lowercaseName.includes('chrome') || lowercaseName.includes('browser')) return <Monitor />;
+    if (lowercaseName.includes('code') || lowercaseName.includes('ide')) return <Laptop />;
+    if (lowercaseName.includes('slack') || lowercaseName.includes('communication')) return <Smartphone />;
+    return <Monitor />;
+  };
+
   return (
-    <div className="min-h-screen bg-background p-8">
-      <div className="grid grid-cols-1 gap-8 md:grid-cols-3 lg:grid-cols-4">
-        {/* Header */}
-        <div className="md:col-span-3 lg:col-span-4">
-          <h1 className="text-3xl font-bold text-foreground">Screen Time</h1>
-          <p className="text-muted-foreground">Weekly Activity Summary</p>
+    <div className="flex h-screen bg-neutral-100 text-neutral-900">
+      <div className="w-72 bg-white border-r">
+        <div className="p-4 border-b">
+          <h1 className="text-xl font-semibold">Screentime Tracker</h1>
         </div>
+        <div className="p-4">
+          <div className="flex justify-between mb-4">
+            {periodOptions.map(period => (
+              <button
+                key={period}
+                onClick={() => setSelectedPeriod(period)}
+                className={`px-3 py-1 text-sm uppercase tracking-wider 
+                  ${selectedPeriod === period 
+                    ? 'bg-neutral-900 text-white' 
+                    : 'text-neutral-500 hover:bg-neutral-100'}`}
+              >
+                {period}
+              </button>
+            ))}
+          </div>
 
-        {/* Stats Cards */}
-        <Card className="apple-card">
-          <CardHeader>
-            <CardTitle className="text-lg">Total Screen Time</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center gap-4">
-              <FaRegClock className="h-8 w-8 text-primary" />
-              <div>
-                <p className="text-3xl font-bold">28.9h</p>
-                <p className="text-sm text-muted-foreground">+12% from last week</p>
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <Clock className="text-neutral-500" />
+              <div className="text-right">
+                <p className="text-2xl font-bold">{formatTime(totalScreenTime)}</p>
+                <p className="text-xs text-neutral-500">Total Screen Time</p>
               </div>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
+      </div>
 
-        <Card className="apple-card">
-          <CardHeader>
-            <CardTitle className="text-lg">Daily Average</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center gap-4">
-              <div className="rounded-lg bg-secondary p-2">
-                <FaRegClock className="h-6 w-6 text-foreground" />
-              </div>
-              <div>
-                <p className="text-3xl font-bold">4.1h</p>
-                <p className="text-sm text-muted-foreground">-1.2h from last week</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+      <main className="flex-1 p-4">
+        <div className="bg-white border">
+          <div className="p-4 border-b flex items-center justify-between">
+            <h2 className="text-lg font-semibold">App Usage</h2>
+            <BarChart2 className="text-neutral-500" />
+          </div>
+          <div>
+            {appUsageData.map((app, index) => {
+              const totalTime = totalScreenTime || 1;
+              const percentage = Math.round((app.duration / totalTime) * 100);
 
-        {/* Main Chart */}
-        <Card className="md:col-span-2 lg:col-span-2 apple-card">
-          <CardHeader>
-            <CardTitle>Daily Usage</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="h-64">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={mockData.daily}>
-                  <XAxis dataKey="day" stroke="hsl(var(--foreground))" />
-                  <YAxis stroke="hsl(var(--foreground))" />
-                  <Tooltip />
-                  <Line
-                    type="monotone"
-                    dataKey="hours"
-                    stroke="hsl(var(--primary))"
-                    strokeWidth={2}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* App Usage List */}
-        <Card className="md:col-span-2 lg:col-span-2 apple-card">
-          <CardHeader>
-            <CardTitle>App Usage</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-6">
-              {mockData.apps.map((app, index) => (
-                <div key={index} className="flex items-center justify-between">
-                  <div className="flex items-center gap-4">
-                    <span className="text-muted-foreground">{app.icon}</span>
-                    <div>
-                      <p className="font-medium">{app.name}</p>
-                      <p className="text-sm text-muted-foreground">
-                        {app.hours} hours
-                      </p>
+              return (
+                <div 
+                  key={app.app_name} 
+                  className={`flex items-center p-3 ${index < appUsageData.length - 1 ? 'border-b' : ''}`}
+                >
+                  {getAppIcon(app.app_name)}
+                  <div className="ml-3 flex-1">
+                    <div className="flex justify-between mb-1">
+                      <span>{app.app_name}</span>
+                      <span>{formatTime(app.duration)}</span>
+                    </div>
+                    <div className="w-full bg-neutral-200 h-1">
+                      <div 
+                        className="bg-neutral-900 h-1" 
+                        style={{width: `${percentage}%`}}
+                      ></div>
                     </div>
                   </div>
-                  <div className="h-2 w-24 rounded-full bg-secondary">
-                    <div
-                      className="h-2 rounded-full bg-primary"
-                      style={{ width: `${(app.hours / 24) * 100}%` }}
-                    />
-                  </div>
                 </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Recent Activity */}
-        <Card className="md:col-span-2 apple-card">
-          <CardHeader>
-            <CardTitle>Recent Activity</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {[...Array(5)].map((_, i) => (
-                <div key={i} className="flex items-start gap-4">
-                  <div className="relative">
-                    <div className="h-2 w-2 rounded-full bg-primary mt-2" />
-                    {i < 4 && (
-                      <div className="absolute left-0.5 h-8 w-px bg-border mt-2" />
-                    )}
-                  </div>
-                  <div>
-                    <p className="font-medium">Opened VS Code</p>
-                    <p className="text-sm text-muted-foreground">2 hours ago</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+              );
+            })}
+          </div>
+        </div>
+      </main>
     </div>
-  )
-}
+  );
+};
+
+export default ScreentimeDashboard;
