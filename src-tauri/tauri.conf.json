@@ -30,7 +30,7 @@
         "title": "ScreenTime",
         "width": 1200,
         "height": 650,
-        "resizable": false,
+        "resizable": true,
         "fullscreen": false,
         "transparent": true,
         "decorations": false 
