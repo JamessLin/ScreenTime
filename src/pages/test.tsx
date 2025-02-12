@@ -5,10 +5,10 @@ import { Clock, Layout, BarChart, ArrowUp, ArrowDown } from "lucide-react"
 
 export default function Home() {
   return (
-    <div className="flex-1 space-y-4 p-8 pt-6">
-      <div className="flex items-center justify-between space-y-2">
-        <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
-      </div>
+
+    //TODO: Dragable region
+    <div data-tauri-drag-region className="flex-1 space-y-4 p-8 pt-6">
+     
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card className="bg-gradient-to-br from-blue-100 to-blue-200 dark:from-blue-900 dark:to-blue-800">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">

@@ -19,18 +19,18 @@ export function Sidebar() {
   };
 
   return (
-    <div className="relative min-h-screen w-60">
+    <div className="sticky top-0 h-screen w-60">
       {/* Glassmorphism background */}
-      <div className="fixed w-60 h-screen bg-white/50 dark:bg-gray-950/50 backdrop-blur-xl border-r border-gray-200 dark:border-gray-800" />
+      <div className="fixed w-60 h-screen bg-white/40 dark:bg-gray-950/40 backdrop-blur-xl border-r border-gray-200 dark:border-gray-800" />
 
       {/* Content */}
       <div className="relative flex flex-col h-screen">
         {/* App title area */}
-        <div className="p-6">
-          <h2 className="text-xl font-semibold bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">
-            Activity Tracker
+        {/* <div className="p-6">
+          <h2 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">
+            Screen Time
           </h2>
-        </div>
+        </div> */}
 
         {/* Navigation */}
         <div className="flex-1 px-3 py-2">
@@ -92,7 +92,7 @@ export function Sidebar() {
         </div>
 
         {/* Theme toggle and window controls */}
-        <div className="p-4 border-t border-gray-200 dark:border-gray-800">
+        <div className="p-4 mb-10 border-t border-gray-200 dark:border-gray-800">
           <Button
             variant="ghost"
             className="w-full justify-start font-medium hover:bg-gray-200/50 dark:hover:bg-gray-800/50"

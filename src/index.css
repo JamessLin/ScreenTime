@@ -65,7 +65,55 @@
     --ring: 212.7 26.8% 83.9%;
   }
 }
+/* Custom Scrollbar Styles */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
 
+::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #8884;
+  border-radius: 5px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #888;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+/* For Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #8884 transparent;
+}
+
+/* Dark mode variations */
+.dark ::-webkit-scrollbar-thumb {
+  background: #ffffff44;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #ffffff66;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+
+
+
+.dark * {
+  scrollbar-color: #ffffff44 transparent;
+}
 @layer base {
   * {
     @apply border-border;
