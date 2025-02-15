@@ -1,63 +1,56 @@
-import { useEffect, useState } from "react"
-import { invoke } from "@tauri-apps/api/tauri"
-import { Card } from "../components/ui/card"
-import { ScrollArea } from "../components/ui/scroll-area"
+import { useEffect, useState } from "react";
+import { invoke } from "@tauri-apps/api/tauri";
+import { Card } from "../components/ui/card";
+import { ScrollArea } from "../components/ui/scroll-area";
 
 interface AppUsage {
-  name: string
-  description: string
-  usage_seconds: number
-}
-
-function formatDuration(seconds: number): string {
-  const hours = Math.floor(seconds / 3600)
-  const minutes = Math.floor((seconds % 3600) / 60)
-  
-  if (hours > 0) {
-    return `${hours}h ${minutes}m`
-  }
-  return `${minutes}m`
+  id: string;
+  name: string;
+  time: string; // Formatted "HH:MM" string
+  time_in_minutes: number;
+  change: number;
+  icon: string;
+  last_used: string;
+  category: string;
 }
 
 export default function ScreenTimePage({ params }: { params: { date: string } }) {
-  const [apps, setApps] = useState<AppUsage[]>([])
-  const [error, setError] = useState<string | null>(null)
-  
+  const [apps, setApps] = useState<AppUsage[]>([]);
+  const [error, setError] = useState<string | null>(null);
+
   useEffect(() => {
     const fetchData = async () => {
       try {
-        console.log("Fetching tracking data...") // Debug log
-        const data = await invoke<AppUsage[]>("get_tracking_data")
-        console.log("Received tracking data:", data) // Debug log
-        
-        // Filter out apps with 0 seconds of usage
-        const activeApps = data.filter(app => app.usage_seconds > 0)
-        
-        // Sort by usage time descending
-        const sortedData = activeApps.sort((a, b) => b.usage_seconds - a.usage_seconds)
-        console.log("Sorted and filtered data:", sortedData) // Debug log
-        
-        setApps(sortedData)
-        setError(null)
-      } catch (error) {
-        console.error("Error fetching tracking data:", error)
-        setError("Failed to fetch tracking data")
-      }
-    }
+        console.log("Fetching app usage data...");
+        const data = await invoke<AppUsage[]>("get_app_usage");
+        console.log("Received app usage data:", data);
 
-    fetchData()
-    // Update every 30 seconds instead of every minute for more responsive updates
-    const interval = setInterval(fetchData, 30000)
-    
-    return () => clearInterval(interval)
-  }, [])
+        // Filter out apps with no usage (i.e. 0 minutes)
+        const activeApps = data.filter(app => app.time_in_minutes > 0);
+        // Sort by usage time descending
+        const sortedData = activeApps.sort((a, b) => b.time_in_minutes - a.time_in_minutes);
+        console.log("Sorted and filtered data:", sortedData);
+
+        setApps(sortedData);
+        setError(null);
+      } catch (error) {
+        console.error("Error fetching app usage data:", error);
+        setError("Failed to fetch app usage data");
+      }
+    };
+
+    fetchData();
+    // Update every 30 seconds for more responsive updates
+    const interval = setInterval(fetchData, 30000);
+    return () => clearInterval(interval);
+  }, []);
 
   const date = new Date(params.date).toLocaleDateString("en-US", {
     weekday: "long",
     year: "numeric",
     month: "long",
     day: "numeric",
-  })
+  });
 
   return (
     <div className="flex-1 p-8 pt-6">
@@ -77,18 +70,29 @@ export default function ScreenTimePage({ params }: { params: { date: string } })
             <div className="space-y-4">
               {apps.map((app) => (
                 <div
-                  key={app.name}
+                  key={app.id}
                   className="flex items-center justify-between p-4 rounded-lg border bg-card hover:bg-accent transition-colors"
                 >
                   <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center">
+                      {app.icon ? (
+                        <img
+                          src={app.icon}
+                          alt={app.name}
+                          className="w-full h-full object-contain"
+                        />
+                      ) : (
+                        app.name.charAt(0)
+                      )}
+                    </div>
                     <div>
                       <h3 className="font-semibold">{app.name}</h3>
-                      <p className="text-sm text-muted-foreground">{app.description}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {app.category} — Last used: {app.last_used}
+                      </p>
                     </div>
                   </div>
-                  <div className="font-mono font-medium">
-                    {formatDuration(app.usage_seconds)}
-                  </div>
+                  <div className="font-mono font-medium">{app.time}</div>
                 </div>
               ))}
             </div>
@@ -96,5 +100,5 @@ export default function ScreenTimePage({ params }: { params: { date: string } })
         )}
       </Card>
     </div>
-  )
+  );
 }
