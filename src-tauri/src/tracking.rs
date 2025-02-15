@@ -25,6 +25,21 @@ pub struct AppUsage {
     pub usage_seconds: u64,
 }
 
+//TODO: Implement the below struct 
+
+// pub struct AppUsage {
+//     pub id: String,
+//     pub name: String,
+//     pub time : String,
+//     pub time_in_minutes: u64,
+//     pub change: i64,
+//     pub icon: String,
+//     pub last_used: String,
+//     pub category: String,
+// }
+
+
+
 fn get_app_name_from_process(process_name: &str) -> (String, String) {
     println!("Raw process name: {}", process_name); //TODO: Remove Debug LOg    
     
