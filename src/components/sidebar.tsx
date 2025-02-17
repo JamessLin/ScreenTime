@@ -92,7 +92,7 @@ export function Sidebar() {
         </div>
 
         {/* Theme toggle and window controls */}
-        <div className="p-4 mb-10 border-t border-gray-200 dark:border-gray-800">
+        <div className="p-4 border-t border-gray-200 dark:border-gray-800">
           <Button
             variant="ghost"
             className="w-full justify-start font-medium hover:bg-gray-200/50 dark:hover:bg-gray-800/50"
