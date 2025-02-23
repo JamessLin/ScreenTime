@@ -7,22 +7,6 @@ use std::sync::{Arc, Mutex};
 use std::collections::HashMap;
 use tauri::{Manager, State};
 use app_usage::{get_app_usage, start_tracking};
-mod tracking;
-use crate::tracking::AppUsage;
-
-struct AppState {
-    tracking: Arc<Mutex<HashMap<String, AppUsage>>>,
-}
-
-//TODO Remove all debug logs
-#[tauri::command]
-fn get_tracking_data(state: State<'_, AppState>) -> Vec<AppUsage> {
-    let state = state.tracking.lock().unwrap();
-    println!("Current tracking data: {:?}", state);  
-    let result: Vec<AppUsage> = state.values().cloned().collect();
-    println!("Returning {} apps", result.len());  
-    result
-}
 
 fn main() {
     // let tracking_data = Arc::new(Mutex::new(HashMap::new()));
