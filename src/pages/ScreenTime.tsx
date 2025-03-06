@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { ArrowDownIcon, ArrowUpIcon, Clock, SortAsc, SortDesc } from "lucide-react"
+import { ArrowDownIcon, ArrowUpIcon, SortAsc, SortDesc } from "lucide-react"
 
 import { Card } from "../components/ui/card"
 import { Button } from "../components/ui/button"
@@ -17,6 +17,21 @@ interface AppUsageData {
   icon: string
   last_used: string
   category: string
+}
+
+// Helper function to format the time
+function formatTime(minutes: number): string {
+  if (minutes < 1) {
+    const seconds = Math.round(minutes * 60)
+    return `${seconds} second${seconds === 1 ? "" : "s"}`
+  } else if (minutes < 60) {
+    const roundedMinutes = Math.round(minutes)
+    return `${roundedMinutes} min${roundedMinutes === 1 ? "" : "s"}`
+  } else {
+    const hours = minutes / 60
+    const formattedHours = hours % 1 === 0 ? hours.toString() : hours.toFixed(1)
+    return `${formattedHours} hours`
+  }
 }
 
 export default function ScreenTimePage() {
@@ -129,7 +144,7 @@ export default function ScreenTimePage() {
                 </div>
                 <div className="flex items-center gap-6">
                   <div className="text-right">
-                    <p className="font-medium">{app.time}</p>
+                    <p className="font-medium">{formatTime(app.time_in_minutes)}</p>
                     <div
                       className={`flex items-center text-sm justify-end ${
                         app.change > 0
